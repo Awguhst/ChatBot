@@ -1,0 +1,6 @@
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+google-genai>=1.0.0
+pydantic>=2.7.0
+python-dotenv>=1.0.0
+scikit-learn>=1.4.0   # used only for cosine_similarity in TF-IDF store
