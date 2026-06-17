@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html class="dark" lang="bg">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Микро Кредит — Кредитен Асистент</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-surface-variant":      "#d6c4ac",
+            "surface-container-low":   "#1a1c1c",
+            "surface-variant":         "#343535",
+            "inverse-on-surface":      "#2f3131",
+            "surface-container-lowest":"#0d0e0f",
+            "on-surface":              "#e3e2e2",
+            "on-background":           "#e3e2e2",
+            "outline":                 "#9e8e78",
+            "surface-container-highest":"#343535",
+            "outline-variant":         "#514532",
+            "on-primary":              "#432c00",
+            "surface-dim":             "#121414",
+            "background":              "#121414",
+            "surface-container-high":  "#292a2a",
+            "primary":                 "#ffd79b",
+            "surface-bright":          "#383939",
+            "surface":                 "#121414",
+            "error-container":         "#5b1410",
+            "primary-fixed":           "#ffdeac",
+            "primary-fixed-dim":       "#ffba38",
+            "error":                   "#ffb4ab",
+            "primary-container":       "#ffb300",
+            "surface-container":       "#1e2020"
+          },
+          borderRadius: { DEFAULT:"0.25rem", lg:"0.5rem", xl:"0.75rem", full:"9999px" },
+          spacing: {
+            "stack-lg":"2rem", "gutter":"1.5rem", "chat-max-width":"800px",
+            "stack-sm":"0.5rem", "stack-md":"1rem", "sidebar-width":"280px"
+          },
+          fontFamily: {
+            "headline-sm":["Inter"], "body-lg":["Inter"], "headline-lg":["Inter"],
+            "body-md":["Inter"], "label-caps":["Inter"],
+            "headline-lg-mobile":["Inter"], "headline-md":["Inter"]
+          },
+          fontSize: {
+            "headline-sm":        ["18px", { lineHeight:"1.4", fontWeight:"500" }],
+            "body-lg":            ["16px", { lineHeight:"1.6", fontWeight:"400" }],
+            "headline-lg":        ["32px", { lineHeight:"1.2", letterSpacing:"-0.02em", fontWeight:"600" }],
+            "body-md":            ["14px", { lineHeight:"1.5", fontWeight:"400" }],
+            "label-caps":         ["12px", { lineHeight:"1",   letterSpacing:"0.08em", fontWeight:"700" }],
+            "headline-lg-mobile": ["24px", { lineHeight:"1.2", fontWeight:"600" }],
+            "headline-md":        ["24px", { lineHeight:"1.3", fontWeight:"600" }]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body { background-color:#121212; color:#e3e2e2; font-family:'Inter',sans-serif; }
+
+    .glassmorphism {
+      background: rgba(30, 30, 30, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar { width:4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background:transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background:#343535; border-radius:10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background:#474746; }
+
+    .typing-dot { animation:typing 1.4s infinite ease-in-out; }
+    .typing-dot:nth-child(2) { animation-delay:.2s; }
+    .typing-dot:nth-child(3) { animation-delay:.4s; }
+    @keyframes typing { 0%,60%,100% { transform:translateY(0); } 30% { transform:translateY(-4px); } }
+
+    @keyframes fadeSlideIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .msg-appear { animation:fadeSlideIn .35s ease-out both; }
+
+    /* Markdown rendering inside AI cards */
+    .prose-chat p  { margin-bottom:.65rem; }
+    .prose-chat p:last-child { margin-bottom:0; }
+    .prose-chat ul { list-style:disc; padding-left:1.25rem; margin-bottom:.65rem; }
+    .prose-chat ol { list-style:decimal; padding-left:1.25rem; margin-bottom:.65rem; }
+    .prose-chat li { margin-bottom:.35rem; }
+    .prose-chat strong { font-weight:600; color:#ffd79b; }
+    .prose-chat code { background:#2a2a2a; border-radius:4px; padding:.1em .35em; font-size:.875em; font-family:monospace; }
+
+    /* History items: delete icon on hover (desktop) / always (mobile) */
+    @media (min-width: 768px) {
+      .hist-delete { opacity:0; transition:opacity .15s; }
+      .hist-item:hover .hist-delete { opacity:1; }
+    }
+    .session-active { background-color:#343535; color:#ffd79b !important; font-weight:700; }
+
+    /* Toast */
+    #toast {
+      position:fixed; bottom:7rem; left:50%; transform:translateX(-50%);
+      background:#1e2020; border:1px solid #514532; color:#e3e2e2;
+      padding:.6rem 1.4rem; border-radius:9999px; font-size:.8rem;
+      opacity:0; transition:opacity .25s; pointer-events:none; z-index:200;
+      white-space:nowrap;
+    }
+    #toast.show { opacity:1; }
+  </style>
+</head>
+<body class="dark h-screen overflow-hidden flex">
+
+<!-- ── Backdrop (mobile sidebar) ───────────────────────────────────────── -->
+<div id="sidebarBackdrop"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden md:hidden"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════════════════════════════════ -->
+<aside id="sidebar"
+  class="fixed top-0 left-0 h-full w-[280px] bg-surface-container-lowest
+    flex flex-col border-r border-outline-variant/20 z-50
+    transform -translate-x-full md:translate-x-0
+    transition-transform duration-200">
+
+  <!-- Brand -->
+  <div class="px-6 py-7 flex items-start justify-between">
+    <div>
+      <h1 class="text-headline-md font-headline-md font-bold text-primary">Микро Кредит</h1>
+      <p class="text-label-caps font-label-caps text-on-surface-variant tracking-widest mt-1">КРЕДИТЕН АСИСТЕНТ</p>
+    </div>
+    <button id="closeSidebarBtn" class="md:hidden text-on-surface-variant hover:text-on-surface p-1 -mt-1">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+
+  <!-- New session CTA -->
+  <div class="px-4 mb-7">
+    <button id="newSessionBtn"
+      class="w-full bg-primary-container text-on-primary font-bold py-3.5 px-4
+        rounded-lg flex items-center justify-center gap-3
+        transition-all active:scale-[0.98] hover:brightness-110
+        shadow-lg shadow-primary-container/10">
+      <span class="material-symbols-outlined text-[20px]"
+        style="font-variation-settings:'FILL' 1;">edit_square</span>
+      <span class="text-body-md font-bold">Нова сесия</span>
+    </button>
+  </div>
+
+  <!-- History -->
+  <div class="flex-1 overflow-y-auto px-4 custom-scrollbar min-h-0">
+    <div class="flex items-center justify-between px-2 mb-3">
+      <p class="text-label-caps font-label-caps text-outline-variant uppercase">История</p>
+      <span id="sessionCount" class="text-label-caps font-label-caps text-outline-variant">0</span>
+    </div>
+    <div id="sessionList" class="space-y-1"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="p-4 border-t border-outline-variant/10">
+    <button id="clearAllBtn"
+      class="w-full flex items-center gap-3 p-3 text-on-surface-variant
+        hover:bg-surface-bright hover:text-error rounded-lg transition-colors">
+      <span class="material-symbols-outlined text-[20px]">delete_sweep</span>
+      <span class="text-body-md">Изчисти историята</span>
+    </button>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     MAIN
+═══════════════════════════════════════════════════════════════════════ -->
+<main class="flex-1 md:ml-[280px] h-full flex flex-col relative bg-surface min-w-0">
+
+  <!-- Mobile top bar -->
+  <header class="md:hidden h-14 flex items-center justify-between px-4
+    bg-surface border-b border-outline-variant/10 flex-shrink-0">
+    <button id="openSidebarBtn" class="text-on-surface-variant hover:text-primary p-1">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+    <span class="text-headline-sm font-headline-sm font-bold text-primary">Микро Кредит</span>
+    <button id="newSessionBtnMobile" class="text-on-surface-variant hover:text-primary p-1">
+      <span class="material-symbols-outlined">edit_square</span>
+    </button>
+  </header>
+
+  <!-- Chat -->
+  <div id="chatCanvas" class="flex-1 overflow-y-auto px-4 md:px-gutter py-6 md:py-10 custom-scrollbar">
+    <div id="messageList" class="max-w-[800px] mx-auto space-y-8 md:space-y-10">
+
+      <!-- Welcome (shown when no messages) -->
+      <div id="welcomeBlock" class="flex flex-col items-start gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <span class="material-symbols-outlined text-on-primary text-[20px]"
+              style="font-variation-settings:'FILL' 1;">smart_toy</span>
+          </div>
+          <span class="text-label-caps font-label-caps text-primary uppercase tracking-widest">Аурелиан</span>
+        </div>
+        <div class="relative bg-surface-container-low border border-outline-variant/20
+          p-6 md:p-8 rounded-2xl shadow-xl w-full">
+          <div class="absolute left-0 top-1/4 bottom-1/4 w-[3px] bg-primary rounded-r-full
+            shadow-[0_0_12px_rgba(255,215,155,0.4)]"></div>
+          <p class="text-body-lg font-body-lg text-on-surface leading-relaxed">
+            Здравейте! Аз съм Аурелиан, виртуалният кредитен асистент на Микро Кредит.
+            Задайте ми въпрос за бързите ни кредити (от €200 до €3000), лихвите, таксите,
+            условията за кандидатстване или промоцията за първи кредит без лихва.
+          </p>
+        </div>
+      </div>
+
+      <!-- Typing indicator -->
+      <div id="typingIndicator" class="hidden flex items-center gap-3 pl-2">
+        <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center opacity-70">
+          <span class="material-symbols-outlined text-on-primary text-[18px]"
+            style="font-variation-settings:'FILL' 1;">smart_toy</span>
+        </div>
+        <div class="flex gap-1.5">
+          <div class="typing-dot w-2 h-2 bg-primary/40 rounded-full"></div>
+          <div class="typing-dot w-2 h-2 bg-primary/60 rounded-full"></div>
+          <div class="typing-dot w-2 h-2 bg-primary/80 rounded-full"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer / input -->
+  <footer class="bg-surface/80 backdrop-blur-xl px-4 md:px-8 py-4 md:py-6
+    border-t border-outline-variant/10">
+    <div class="max-w-[800px] mx-auto space-y-4 md:space-y-5">
+
+      <!-- Suggestion chips (3) -->
+      <div id="suggestionsRow" class="flex gap-2 md:gap-3 overflow-x-auto pb-1 custom-scrollbar whitespace-nowrap">
+        <button class="suggestion-btn flex-shrink-0 px-4 md:px-5 py-2 md:py-2.5
+          border border-outline/30 rounded-full text-label-caps font-label-caps
+          text-on-surface-variant hover:border-primary hover:text-primary
+          transition-all bg-surface-container-low/50">
+          Условия за кредит
+        </button>
+        <button class="suggestion-btn flex-shrink-0 px-4 md:px-5 py-2 md:py-2.5
+          border border-outline/30 rounded-full text-label-caps font-label-caps
+          text-on-surface-variant hover:border-primary hover:text-primary
+          transition-all bg-surface-container-low/50">
+          Първи кредит без лихва
+        </button>
+        <button class="suggestion-btn flex-shrink-0 px-4 md:px-5 py-2 md:py-2.5
+          border border-outline/30 rounded-full text-label-caps font-label-caps
+          text-on-surface-variant hover:border-primary hover:text-primary
+          transition-all bg-surface-container-low/50">
+          Лихви и ГПР
+        </button>
+      </div>
+
+      <!-- Input -->
+      <div class="relative group">
+        <div class="absolute -inset-0.5 bg-gradient-to-r from-primary/20 to-primary-fixed/20
+          rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition duration-500
+          pointer-events-none"></div>
+        <div class="relative glassmorphism rounded-2xl flex items-end p-2 pl-4 md:pl-6">
+          <textarea id="chatInput"
+            class="flex-1 bg-transparent border-none text-on-surface focus:ring-0
+              placeholder:text-outline-variant py-3 text-body-lg font-body-lg
+              resize-none custom-scrollbar"
+            placeholder="Напишете съобщение..."
+            rows="1"
+            style="min-height:44px;max-height:150px;"></textarea>
+          <button id="sendBtn"
+            class="bg-primary-container text-on-primary p-2.5 md:p-3 rounded-xl
+              flex items-center justify-center hover:brightness-110 active:scale-95
+              transition-all shadow-lg shadow-primary/20
+              disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100"
+            aria-label="Изпрати">
+            <span class="material-symbols-outlined font-bold">send</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Hint -->
+      <div class="flex justify-center">
+        <p class="text-[10px] text-outline-variant uppercase tracking-[0.2em]">
+          Enter за изпращане · Shift+Enter за нов ред
+        </p>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     SCRIPT
+═══════════════════════════════════════════════════════════════════════ -->
+<script>
+  const API_BASE = 'http://localhost:8000';
+
+  // ── State ──────────────────────────────────────────────────────────────
+  let currentSessionId    = newSessionId();
+  let conversationHistory = [];   // [{role, content, ts?}]
+  let sessions            = [];   // [{id, title, history}]
+  let isLoading           = false;
+
+  // ── DOM ────────────────────────────────────────────────────────────────
+  const chatInput        = document.getElementById('chatInput');
+  const sendBtn          = document.getElementById('sendBtn');
+  const messageList      = document.getElementById('messageList');
+  const typingIndicator  = document.getElementById('typingIndicator');
+  const chatCanvas       = document.getElementById('chatCanvas');
+  const welcomeBlock     = document.getElementById('welcomeBlock');
+  const sessionList      = document.getElementById('sessionList');
+  const sessionCountEl   = document.getElementById('sessionCount');
+  const sidebar          = document.getElementById('sidebar');
+  const sidebarBackdrop  = document.getElementById('sidebarBackdrop');
+
+  // ── Helpers ────────────────────────────────────────────────────────────
+  function newSessionId() {
+    return 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function formatTime(d) {
+    return d.toLocaleTimeString('bg-BG', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderMarkdown(text) {
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+    const lines = text.split('\n');
+    let html = '', inUl = false;
+    for (const line of lines) {
+      const li = line.match(/^[\s]*[-*]\s+(.*)/);
+      if (li) {
+        if (!inUl) { html += '<ul>'; inUl = true; }
+        html += `<li>${li[1]}</li>`;
+      } else {
+        if (inUl) { html += '</ul>'; inUl = false; }
+        if (line.trim()) html += `<p>${line}</p>`;
+      }
+    }
+    if (inUl) html += '</ul>';
+    return html;
+  }
+
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function scrollToBottom() {
+    requestAnimationFrame(() => { chatCanvas.scrollTop = chatCanvas.scrollHeight; });
+  }
+
+  // ── Message bubbles ────────────────────────────────────────────────────
+  function createUserBubble(text, animate = true, ts = null) {
+    const time = formatTime(ts ? new Date(ts) : new Date());
+    const w = document.createElement('div');
+    w.className = 'msg flex flex-col items-end' + (animate ? ' msg-appear' : '');
+    w.innerHTML = `
+      <div class="bg-surface-container-high text-on-surface py-4 px-6 rounded-2xl
+        rounded-tr-none shadow-lg max-w-[85%]">
+        <p class="text-body-lg font-body-lg">${escapeHtml(text)}</p>
+      </div>
+      <span class="text-label-caps font-label-caps text-outline-variant mt-2 uppercase">${time}</span>`;
+    return w;
+  }
+
+  function createAssistantBubble(text, animate = true) {
+    const w = document.createElement('div');
+    w.className = 'msg flex flex-col items-start gap-4' + (animate ? ' msg-appear' : '');
+    w.innerHTML = `
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+          <span class="material-symbols-outlined text-on-primary text-[20px]"
+            style="font-variation-settings:'FILL' 1;">smart_toy</span>
+        </div>
+        <span class="text-label-caps font-label-caps text-primary uppercase tracking-widest">Аурелиан</span>
+      </div>
+      <div class="relative bg-surface-container-low border border-outline-variant/20
+        p-6 md:p-8 rounded-2xl shadow-xl w-full">
+        <div class="absolute left-0 top-1/4 bottom-1/4 w-[3px] bg-primary rounded-r-full
+          shadow-[0_0_12px_rgba(255,215,155,0.4)]"></div>
+        <div class="prose-chat text-body-lg font-body-lg text-on-surface leading-relaxed">${renderMarkdown(text)}</div>
+      </div>`;
+    return w;
+  }
+
+  function createErrorBubble(msg) {
+    const w = document.createElement('div');
+    w.className = 'msg msg-appear flex flex-col items-start gap-4';
+    w.innerHTML = `
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-error/30 flex items-center justify-center">
+          <span class="material-symbols-outlined text-error text-[18px]">error</span>
+        </div>
+        <span class="text-label-caps font-label-caps text-error uppercase tracking-widest">Грешка</span>
+      </div>
+      <div class="bg-error-container border border-error/40 p-5 rounded-2xl w-full">
+        <p class="text-error text-body-md font-body-md">${escapeHtml(msg)}</p>
+      </div>`;
+    return w;
+  }
+
+  // ── Sessions ───────────────────────────────────────────────────────────
+  function saveCurrentSession() {
+    if (conversationHistory.length === 0) return;
+    const firstUser = conversationHistory.find(m => m.role === 'user');
+    if (!firstUser) return;
+
+    const title = firstUser.content.length > 38
+      ? firstUser.content.slice(0, 38) + '…'
+      : firstUser.content;
+
+    const existing = sessions.find(s => s.id === currentSessionId);
+    if (existing) {
+      existing.history = [...conversationHistory];
+      existing.title = title;
+    } else {
+      sessions.unshift({ id: currentSessionId, title, history: [...conversationHistory] });
+    }
+    renderSessions();
+  }
+
+  function renderSessions() {
+    sessionCountEl.textContent = sessions.length;
+
+    if (sessions.length === 0) {
+      sessionList.innerHTML = `
+        <p class="text-body-md text-outline-variant px-3 py-6 text-center opacity-60">
+          Все още няма разговори
+        </p>`;
+      return;
+    }
+
+    sessionList.innerHTML = '';
+    sessions.forEach(sess => {
+      const isActive = sess.id === currentSessionId;
+      const item = document.createElement('div');
+      item.className = 'hist-item flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors group'
+        + (isActive
+          ? ' session-active'
+          : ' text-on-surface-variant hover:bg-surface-bright');
+      item.dataset.id = sess.id;
+      item.innerHTML = `
+        <span class="material-symbols-outlined text-[18px] flex-shrink-0">chat_bubble</span>
+        <span class="text-body-md flex-1 truncate">${escapeHtml(sess.title)}</span>
+        <button class="hist-delete flex-shrink-0 p-1 text-on-surface-variant hover:text-error rounded"
+          data-del="${sess.id}" title="Изтрий сесията">
+          <span class="material-symbols-outlined text-[16px]" style="pointer-events:none">delete</span>
+        </button>`;
+      sessionList.appendChild(item);
+    });
+  }
+
+  function loadSession(id) {
+    const sess = sessions.find(s => s.id === id);
+    if (!sess) return;
+
+    currentSessionId    = sess.id;
+    conversationHistory = sess.history.map(m => ({ ...m }));
+
+    messageList.querySelectorAll('.msg').forEach(el => el.remove());
+    welcomeBlock.style.display = 'none';
+
+    conversationHistory.forEach(m => {
+      const bubble = m.role === 'user'
+        ? createUserBubble(m.content, false, m.ts)
+        : createAssistantBubble(m.content, false);
+      messageList.insertBefore(bubble, typingIndicator);
+    });
+
+    renderSessions();
+    closeMobileSidebar();
+    scrollToBottom();
+    chatInput.focus();
+  }
+
+  function deleteSession(id) {
+    const wasActive = id === currentSessionId;
+    sessions = sessions.filter(s => s.id !== id);
+    if (wasActive) {
+      newSession();
+    } else {
+      renderSessions();
+    }
+    showToast('Сесията е изтрита');
+  }
+
+  function newSession() {
+    currentSessionId    = newSessionId();
+    conversationHistory = [];
+
+    messageList.querySelectorAll('.msg').forEach(el => el.remove());
+    welcomeBlock.style.display = '';
+
+    chatInput.value = '';
+    chatInput.style.height = '44px';
+
+    renderSessions();
+    closeMobileSidebar();
+    scrollToBottom();
+    chatInput.focus();
+  }
+
+  function clearAllSessions() {
+    if (sessions.length === 0) { showToast('Историята е вече празна'); return; }
+    sessions = [];
+    newSession();
+    showToast('Историята е изчистена');
+  }
+
+  // ── Mobile sidebar ─────────────────────────────────────────────────────
+  function openMobileSidebar() {
+    sidebar.classList.remove('-translate-x-full');
+    sidebarBackdrop.classList.remove('hidden');
+  }
+  function closeMobileSidebar() {
+    sidebar.classList.add('-translate-x-full');
+    sidebarBackdrop.classList.add('hidden');
+  }
+
+  // ── Send ───────────────────────────────────────────────────────────────
+  async function sendMessage(text) {
+    text = text.trim();
+    if (!text || isLoading) return;
+
+    const ts = new Date().toISOString();
+
+    isLoading = true;
+    sendBtn.disabled = true;
+    chatInput.value = '';
+    chatInput.style.height = '44px';
+    welcomeBlock.style.display = 'none';
+
+    messageList.insertBefore(createUserBubble(text, true, ts), typingIndicator);
+    scrollToBottom();
+
+    typingIndicator.classList.remove('hidden');
+    typingIndicator.classList.add('flex');
+    scrollToBottom();
+
+    const payload = conversationHistory.map(m => ({ role: m.role, content: m.content }));
+
+    try {
+      const res = await fetch(`${API_BASE}/chat`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ question: text, history: payload, top_k: 4 })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: res.statusText }));
+        throw new Error(err.detail || `HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      conversationHistory.push({ role: 'user',      content: text,        ts });
+      conversationHistory.push({ role: 'assistant', content: data.answer });
+
+      typingIndicator.classList.add('hidden');
+      typingIndicator.classList.remove('flex');
+      messageList.insertBefore(createAssistantBubble(data.answer), typingIndicator);
+
+      saveCurrentSession();
+    } catch (err) {
+      typingIndicator.classList.add('hidden');
+      typingIndicator.classList.remove('flex');
+      messageList.insertBefore(
+        createErrorBubble(`Неуспешна връзка със сървъра: ${err.message}`),
+        typingIndicator
+      );
+    } finally {
+      isLoading = false;
+      sendBtn.disabled = false;
+      scrollToBottom();
+      chatInput.focus();
+    }
+  }
+
+  // ── Wire up events ─────────────────────────────────────────────────────
+
+  // Textarea autosize
+  chatInput.addEventListener('input', () => {
+    chatInput.style.height = '0';
+    const h = Math.min(chatInput.scrollHeight, 150);
+    chatInput.style.height = h + 'px';
+  });
+
+  // Send
+  sendBtn.addEventListener('click', () => sendMessage(chatInput.value));
+  chatInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(chatInput.value); }
+  });
+
+  // Suggestion chips
+  document.querySelectorAll('.suggestion-btn').forEach(btn => {
+    btn.addEventListener('click', () => sendMessage(btn.textContent.trim()));
+  });
+
+  // New session
+  document.getElementById('newSessionBtn').addEventListener('click', newSession);
+  document.getElementById('newSessionBtnMobile').addEventListener('click', newSession);
+
+  // Clear history
+  document.getElementById('clearAllBtn').addEventListener('click', clearAllSessions);
+
+  // Mobile sidebar
+  document.getElementById('openSidebarBtn').addEventListener('click', openMobileSidebar);
+  document.getElementById('closeSidebarBtn').addEventListener('click', closeMobileSidebar);
+  sidebarBackdrop.addEventListener('click', closeMobileSidebar);
+
+  // Session list (delegated)
+  sessionList.addEventListener('click', e => {
+    const delBtn = e.target.closest('[data-del]');
+    if (delBtn) {
+      e.stopPropagation();
+      deleteSession(delBtn.dataset.del);
+      return;
+    }
+    const item = e.target.closest('.hist-item');
+    if (item) loadSession(item.dataset.id);
+  });
+
+  // Init
+  renderSessions();
+  chatInput.focus();
+</script>
+</body>
+</html>
