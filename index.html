@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>Микро Кредит — Кредитен Асистент</title>
+  <title>Кредит Про — Кредитен Асистент</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -127,7 +127,7 @@
   <!-- Brand -->
   <div class="px-6 py-7 flex items-start justify-between">
     <div>
-      <h1 class="text-headline-md font-headline-md font-bold text-primary">Микро Кредит</h1>
+      <h1 class="text-headline-md font-headline-md font-bold text-primary">Кредит Про</h1>
       <p class="text-label-caps font-label-caps text-on-surface-variant tracking-widest mt-1">КРЕДИТЕН АСИСТЕНТ</p>
     </div>
     <button id="closeSidebarBtn" class="md:hidden text-on-surface-variant hover:text-on-surface p-1 -mt-1">
@@ -136,7 +136,7 @@
   </div>
 
   <!-- New session CTA -->
-  <div class="px-4 mb-7">
+  <div class="px-4 mb-4">
     <button id="newSessionBtn"
       class="w-full bg-primary-container text-on-primary font-bold py-3.5 px-4
         rounded-lg flex items-center justify-center gap-3
@@ -147,6 +147,9 @@
       <span class="text-body-md font-bold">Нова сесия</span>
     </button>
   </div>
+
+  <!-- Account / auth -->
+  <div id="accountSection" class="px-4 mb-5"></div>
 
   <!-- History -->
   <div class="flex-1 overflow-y-auto px-4 custom-scrollbar min-h-0">
@@ -179,7 +182,7 @@
     <button id="openSidebarBtn" class="text-on-surface-variant hover:text-primary p-1">
       <span class="material-symbols-outlined">menu</span>
     </button>
-    <span class="text-headline-sm font-headline-sm font-bold text-primary">Микро Кредит</span>
+    <span class="text-headline-sm font-headline-sm font-bold text-primary">Кредит Про</span>
     <button id="newSessionBtnMobile" class="text-on-surface-variant hover:text-primary p-1">
       <span class="material-symbols-outlined">edit_square</span>
     </button>
@@ -203,7 +206,7 @@
           <div class="absolute left-0 top-1/4 bottom-1/4 w-[3px] bg-primary rounded-r-full
             shadow-[0_0_12px_rgba(255,215,155,0.4)]"></div>
           <p class="text-body-lg font-body-lg text-on-surface leading-relaxed">
-            Здравейте! Аз съм Аурелиан, виртуалният кредитен асистент на Микро Кредит.
+            Здравейте! Аз съм Аурелиан, виртуалният кредитен асистент на Кредит Про.
             Задайте ми въпрос за бързите ни кредити (от €200 до €3000), лихвите, таксите,
             условията за кандидатстване или промоцията за първи кредит без лихва.
           </p>
@@ -290,16 +293,170 @@
 <div id="toast"></div>
 
 <!-- ══════════════════════════════════════════════════════════════════════
+     AUTH MODAL (sign in / register)
+═══════════════════════════════════════════════════════════════════════ -->
+<div id="authOverlay"
+  class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+  <div class="glassmorphism w-full max-w-md rounded-2xl p-6 md:p-8 relative bg-surface-container-low">
+    <button id="authCloseBtn"
+      class="absolute top-4 right-4 text-on-surface-variant hover:text-on-surface">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+
+    <h2 class="text-headline-sm font-headline-sm font-bold text-primary mb-6">Моят профил</h2>
+
+    <div class="flex gap-2 mb-6 bg-surface-container-high rounded-lg p-1">
+      <button type="button" id="authTabLogin"
+        class="flex-1 py-2 rounded-lg text-body-md font-bold transition-colors">Вход</button>
+      <button type="button" id="authTabRegister"
+        class="flex-1 py-2 rounded-lg text-body-md font-bold transition-colors">Регистрация</button>
+    </div>
+
+    <form id="authForm" class="space-y-4">
+      <div id="authFullNameField" class="hidden">
+        <label class="text-label-caps font-label-caps text-on-surface-variant block mb-1">Име</label>
+        <input id="authFullName" type="text" autocomplete="name"
+          class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg
+            px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary" />
+      </div>
+      <div id="authPhoneField" class="hidden">
+        <label class="text-label-caps font-label-caps text-on-surface-variant block mb-1">Телефон (незадължително)</label>
+        <input id="authPhone" type="text" autocomplete="tel"
+          class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg
+            px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary" />
+      </div>
+      <div>
+        <label class="text-label-caps font-label-caps text-on-surface-variant block mb-1">Имейл</label>
+        <input id="authEmail" type="email" required autocomplete="email"
+          class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg
+            px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary" />
+      </div>
+      <div>
+        <label class="text-label-caps font-label-caps text-on-surface-variant block mb-1">Парола</label>
+        <input id="authPassword" type="password" required minlength="8" autocomplete="current-password"
+          class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg
+            px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary" />
+      </div>
+
+      <p id="authError" class="hidden text-error text-body-md"></p>
+
+      <button type="submit" id="authSubmitBtn"
+        class="w-full bg-primary-container text-on-primary font-bold py-3 rounded-lg
+          hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50">Вход</button>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     LOANS MODAL (apply / pay / payoff / schedule / history)
+═══════════════════════════════════════════════════════════════════════ -->
+<div id="loansOverlay"
+  class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+  <div class="glassmorphism w-full max-w-2xl rounded-2xl p-6 md:p-8 relative bg-surface-container-low
+    max-h-[85vh] overflow-y-auto custom-scrollbar">
+    <button id="loansCloseBtn"
+      class="absolute top-4 right-4 text-on-surface-variant hover:text-on-surface">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+
+    <h2 class="text-headline-sm font-headline-sm font-bold text-primary mb-6">Моят кредит</h2>
+
+    <!-- Active loan -->
+    <div id="activeLoanPanel" class="hidden space-y-5">
+      <div id="activeLoanSummary" class="bg-surface-container-high rounded-lg p-4 space-y-1"></div>
+
+      <div class="flex flex-wrap gap-3">
+        <button id="makePaymentBtn" type="button"
+          class="bg-primary-container text-on-primary font-bold py-2.5 px-4 rounded-lg
+            hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50">
+          Платете вноска
+        </button>
+        <button id="payoffBtn" type="button"
+          class="border border-outline/30 text-on-surface-variant font-bold py-2.5 px-4 rounded-lg
+            hover:border-primary hover:text-primary transition-all disabled:opacity-50">
+          Погасете предсрочно
+        </button>
+      </div>
+
+      <div>
+        <p class="text-label-caps font-label-caps text-on-surface-variant uppercase mb-2">Погасителен план</p>
+        <div class="overflow-x-auto">
+          <table id="scheduleTable" class="w-full text-body-md text-left">
+            <thead class="text-label-caps font-label-caps text-outline-variant uppercase">
+              <tr>
+                <th class="py-1 pr-3">№</th>
+                <th class="py-1 pr-3">Дата</th>
+                <th class="py-1 pr-3">Вноска</th>
+                <th class="py-1 pr-3">Главница</th>
+                <th class="py-1 pr-3">Лихва</th>
+                <th class="py-1 pr-3">Остатък</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <p class="text-label-caps font-label-caps text-on-surface-variant uppercase mb-2">История на плащанията</p>
+        <div id="paymentHistoryList" class="space-y-1"></div>
+      </div>
+    </div>
+
+    <!-- No active loan: apply form -->
+    <div id="applyLoanPanel" class="hidden space-y-4">
+      <p class="text-body-md text-on-surface-variant">Нямате активен кредит. Кандидатствайте за нов:</p>
+      <form id="applyLoanForm" class="space-y-4">
+        <div>
+          <label class="text-label-caps font-label-caps text-on-surface-variant block mb-1">Сума</label>
+          <select id="applyPrincipal"
+            class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg
+              px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary"></select>
+        </div>
+        <div>
+          <label class="text-label-caps font-label-caps text-on-surface-variant block mb-1">Срок (месеци)</label>
+          <select id="applyTerm"
+            class="w-full bg-surface-container-high border border-outline-variant/30 rounded-lg
+              px-3 py-2.5 text-on-surface focus:outline-none focus:border-primary"></select>
+        </div>
+
+        <p id="applyLoanError" class="hidden text-error text-body-md"></p>
+
+        <button type="submit" id="applyLoanSubmitBtn"
+          class="w-full bg-primary-container text-on-primary font-bold py-3 rounded-lg
+            hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50">
+          Кандидатствай
+        </button>
+      </form>
+    </div>
+
+    <!-- Past loans -->
+    <div id="pastLoansSection" class="hidden mt-6 pt-6 border-t border-outline-variant/10">
+      <p class="text-label-caps font-label-caps text-on-surface-variant uppercase mb-2">Предишни кредити</p>
+      <div id="pastLoansList" class="space-y-2"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
      SCRIPT
 ═══════════════════════════════════════════════════════════════════════ -->
 <script>
-  const API_BASE = 'http://localhost:8000';
+  const API_BASE = 'http://127.0.0.1:8000';
+  const LOAN_PRINCIPAL_CHOICES = [300, 500, 750, 1000, 1500, 2000, 2500, 3000];
+  const LOAN_TERM_CHOICES = [3, 6, 9, 12, 18];
 
   // ── State ──────────────────────────────────────────────────────────────
   let currentSessionId    = newSessionId();
   let conversationHistory = [];   // [{role, content, ts?}]
   let sessions            = [];   // [{id, title, history}]
   let isLoading           = false;
+
+  const AUTH_TOKEN_KEY = 'mc_auth_token';
+  let authToken  = localStorage.getItem(AUTH_TOKEN_KEY) || null;
+  let currentUser = null;          // {id, email, full_name, phone, loan}
+  let authMode    = 'login';       // 'login' | 'register'
+  let loans       = [];            // [{id, status, ...,  payments}]
 
   // ── DOM ────────────────────────────────────────────────────────────────
   const chatInput        = document.getElementById('chatInput');
@@ -312,6 +469,38 @@
   const sessionCountEl   = document.getElementById('sessionCount');
   const sidebar          = document.getElementById('sidebar');
   const sidebarBackdrop  = document.getElementById('sidebarBackdrop');
+
+  const accountSection   = document.getElementById('accountSection');
+  const authOverlay      = document.getElementById('authOverlay');
+  const authForm         = document.getElementById('authForm');
+  const authTabLogin     = document.getElementById('authTabLogin');
+  const authTabRegister  = document.getElementById('authTabRegister');
+  const authFullNameField= document.getElementById('authFullNameField');
+  const authPhoneField   = document.getElementById('authPhoneField');
+  const authFullName     = document.getElementById('authFullName');
+  const authPhone        = document.getElementById('authPhone');
+  const authEmail        = document.getElementById('authEmail');
+  const authPassword     = document.getElementById('authPassword');
+  const authError        = document.getElementById('authError');
+  const authSubmitBtn    = document.getElementById('authSubmitBtn');
+  const authCloseBtn     = document.getElementById('authCloseBtn');
+
+  const loansOverlay        = document.getElementById('loansOverlay');
+  const loansCloseBtn       = document.getElementById('loansCloseBtn');
+  const activeLoanPanel     = document.getElementById('activeLoanPanel');
+  const activeLoanSummary   = document.getElementById('activeLoanSummary');
+  const makePaymentBtn      = document.getElementById('makePaymentBtn');
+  const payoffBtn           = document.getElementById('payoffBtn');
+  const scheduleTableBody   = document.getElementById('scheduleTableBody');
+  const paymentHistoryList  = document.getElementById('paymentHistoryList');
+  const applyLoanPanel      = document.getElementById('applyLoanPanel');
+  const applyLoanForm       = document.getElementById('applyLoanForm');
+  const applyPrincipal      = document.getElementById('applyPrincipal');
+  const applyTerm           = document.getElementById('applyTerm');
+  const applyLoanError      = document.getElementById('applyLoanError');
+  const applyLoanSubmitBtn  = document.getElementById('applyLoanSubmitBtn');
+  const pastLoansSection    = document.getElementById('pastLoansSection');
+  const pastLoansList       = document.getElementById('pastLoansList');
 
   // ── Helpers ────────────────────────────────────────────────────────────
   function newSessionId() {
@@ -526,6 +715,345 @@
     sidebarBackdrop.classList.add('hidden');
   }
 
+  // ── Auth (sign in / register) ─────────────────────────────────────────
+  function openAuthModal(mode) {
+    setAuthMode(mode || 'login');
+    authError.classList.add('hidden');
+    authForm.reset();
+    authOverlay.classList.remove('hidden');
+  }
+
+  function closeAuthModal() {
+    authOverlay.classList.add('hidden');
+  }
+
+  function setAuthMode(mode) {
+    authMode = mode;
+    const isLogin = mode === 'login';
+
+    authTabLogin.classList.toggle('bg-primary-container', isLogin);
+    authTabLogin.classList.toggle('text-on-primary', isLogin);
+    authTabLogin.classList.toggle('text-on-surface-variant', !isLogin);
+
+    authTabRegister.classList.toggle('bg-primary-container', !isLogin);
+    authTabRegister.classList.toggle('text-on-primary', !isLogin);
+    authTabRegister.classList.toggle('text-on-surface-variant', isLogin);
+
+    authFullNameField.classList.toggle('hidden', isLogin);
+    authPhoneField.classList.toggle('hidden', isLogin);
+    authFullName.required = !isLogin;
+
+    authSubmitBtn.textContent = isLogin ? 'Вход' : 'Регистрация';
+  }
+
+  authTabLogin.addEventListener('click', () => setAuthMode('login'));
+  authTabRegister.addEventListener('click', () => setAuthMode('register'));
+  authCloseBtn.addEventListener('click', closeAuthModal);
+  authOverlay.addEventListener('click', e => { if (e.target === authOverlay) closeAuthModal(); });
+
+  authForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    authError.classList.add('hidden');
+    authSubmitBtn.disabled = true;
+
+    const endpoint = authMode === 'login' ? '/auth/login' : '/auth/register';
+    const body = authMode === 'login'
+      ? { email: authEmail.value.trim(), password: authPassword.value }
+      : {
+          email:     authEmail.value.trim(),
+          password:  authPassword.value,
+          full_name: authFullName.value.trim(),
+          phone:     authPhone.value.trim() || null,
+        };
+
+    try {
+      const res = await fetch(`${API_BASE}${endpoint}`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || 'Грешка при удостоверяване.');
+
+      authToken   = data.access_token;
+      currentUser = data.user;
+      localStorage.setItem(AUTH_TOKEN_KEY, authToken);
+
+      renderAccountSection();
+      closeAuthModal();
+      showToast(authMode === 'login' ? 'Успешен вход' : 'Регистрацията е успешна');
+    } catch (err) {
+      authError.textContent = err.message;
+      authError.classList.remove('hidden');
+    } finally {
+      authSubmitBtn.disabled = false;
+    }
+  });
+
+  function logout() {
+    authToken   = null;
+    currentUser = null;
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    renderAccountSection();
+    showToast('Излезли сте от профила');
+  }
+
+  async function loadCurrentUser() {
+    if (!authToken) { renderAccountSection(); return; }
+    try {
+      const res = await fetch(`${API_BASE}/auth/me`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+      if (!res.ok) throw new Error('invalid token');
+      currentUser = await res.json();
+    } catch {
+      authToken   = null;
+      currentUser = null;
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+    }
+    renderAccountSection();
+  }
+
+  function renderAccountSection() {
+    updateWelcomeMessage();
+
+    if (!currentUser) {
+      accountSection.innerHTML = `
+        <button id="authOpenBtn"
+          class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg
+            border border-outline/30 text-on-surface-variant hover:text-primary
+            hover:border-primary transition-colors text-body-md font-bold">
+          <span class="material-symbols-outlined text-[18px]">login</span>
+          Вход / Регистрация
+        </button>`;
+      document.getElementById('authOpenBtn').addEventListener('click', () => openAuthModal('login'));
+      return;
+    }
+
+    const loan = currentUser.loan;
+    const loanHtml = loan ? `
+        <div id="openLoansBtn" class="mt-3 pt-3 border-t border-outline-variant/10 space-y-1
+          cursor-pointer hover:opacity-80 transition-opacity">
+          <p class="text-label-caps font-label-caps text-outline-variant uppercase">Текущ кредит</p>
+          <p class="text-body-md text-on-surface">Баланс:
+            <span class="text-primary font-bold">€${loan.outstanding_balance.toFixed(2)}</span></p>
+          <p class="text-body-md text-on-surface-variant">Следваща вноска: ${loan.next_payment_date || '—'}</p>
+        </div>` : `
+        <div class="mt-3 pt-3 border-t border-outline-variant/10">
+          <p id="openLoansBtn" class="text-body-md text-primary cursor-pointer hover:underline">
+            + Кандидатствай за кредит
+          </p>
+        </div>`;
+
+    accountSection.innerHTML = `
+      <div class="bg-surface-container-low border border-outline-variant/20 rounded-lg p-4">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <span class="material-symbols-outlined text-primary text-[20px]">account_circle</span>
+            <span class="text-body-md font-bold text-on-surface truncate">${escapeHtml(currentUser.full_name)}</span>
+          </div>
+          <button id="logoutBtn" title="Изход" class="text-on-surface-variant hover:text-error p-1 flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px]">logout</span>
+          </button>
+        </div>
+        ${loanHtml}
+      </div>`;
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+    document.getElementById('openLoansBtn').addEventListener('click', openLoansModal);
+  }
+
+  function updateWelcomeMessage() {
+    const p = welcomeBlock.querySelector('p');
+    if (!p) return;
+    p.textContent = currentUser
+      ? `Здравейте, ${currentUser.full_name}! Аз съм Аурелиан, вашият личен кредитен асистент. ` +
+        `Можете да ме питате за вашия текущ кредит (баланс, вноски, дата на плащане) или за общи ` +
+        `въпроси относно продуктите на Кредит Про.`
+      : 'Здравейте! Аз съм Аурелиан, виртуалният кредитен асистент на Кредит Про. ' +
+        'Задайте ми въпрос за бързите ни кредити (от €200 до €3000), лихвите, таксите, ' +
+        'условията за кандидатстване или промоцията за първи кредит без лихва.';
+  }
+
+  // ── Loans (apply / pay / payoff / schedule / history) ─────────────────
+  const PAYMENT_TYPE_LABELS = { scheduled: 'Вноска', payoff: 'Предсрочно погасяване' };
+
+  function authHeaders() {
+    return authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  }
+
+  async function openLoansModal() {
+    if (!authToken) { openAuthModal('login'); return; }
+    loansOverlay.classList.remove('hidden');
+    await refreshLoansData();
+  }
+
+  function closeLoansModal() {
+    loansOverlay.classList.add('hidden');
+  }
+
+  async function refreshLoansData() {
+    try {
+      const res = await fetch(`${API_BASE}/loans`, { headers: authHeaders() });
+      if (!res.ok) throw new Error('Неуспешно зареждане на кредитите.');
+      loans = await res.json();
+      renderLoansModal();
+    } catch (err) {
+      showToast(err.message);
+    }
+  }
+
+  function renderLoansModal() {
+    const activeLoan = loans.find(l => l.status === 'active');
+    const pastLoans  = loans.filter(l => l.status !== 'active');
+
+    activeLoanPanel.classList.toggle('hidden', !activeLoan);
+    applyLoanPanel.classList.toggle('hidden', !!activeLoan);
+
+    if (activeLoan) {
+      renderActiveLoanSummary(activeLoan);
+      renderPaymentHistory(activeLoan.payments);
+      loadAndRenderSchedule(activeLoan.id);
+    }
+
+    pastLoansSection.classList.toggle('hidden', pastLoans.length === 0);
+    renderPastLoans(pastLoans);
+  }
+
+  function renderActiveLoanSummary(loan) {
+    activeLoanSummary.innerHTML = `
+      <p class="text-body-md text-on-surface">Усвоена сума: <span class="font-bold">€${loan.principal_amount.toFixed(2)}</span></p>
+      <p class="text-body-md text-on-surface">Срок: <span class="font-bold">${loan.term_months} месеца</span></p>
+      <p class="text-body-md text-on-surface">Фиксиран ГЛП: ${loan.annual_rate}% / ГПР: ${loan.apr}%</p>
+      <p class="text-body-md text-on-surface">Месечна вноска: <span class="font-bold">€${loan.monthly_payment.toFixed(2)}</span></p>
+      <p class="text-body-md text-on-surface">Платени вноски: ${loan.installments_paid} от ${loan.term_months}</p>
+      <p class="text-body-md text-on-surface">Оставаща сума: <span class="text-primary font-bold">€${loan.outstanding_balance.toFixed(2)}</span></p>
+      <p class="text-body-md text-on-surface-variant">Следваща вноска: ${loan.next_payment_date || '—'}</p>`;
+  }
+
+  async function loadAndRenderSchedule(loanId) {
+    try {
+      const res = await fetch(`${API_BASE}/loans/${loanId}/schedule`, { headers: authHeaders() });
+      if (!res.ok) throw new Error('Неуспешно зареждане на погасителния план.');
+      const data = await res.json();
+      scheduleTableBody.innerHTML = data.entries.map(e => `
+        <tr class="${e.is_paid ? 'opacity-50' : ''} border-t border-outline-variant/10">
+          <td class="py-1.5 pr-3">${e.installment_number}${e.is_paid ? ' ✓' : ''}</td>
+          <td class="py-1.5 pr-3">${e.due_date}</td>
+          <td class="py-1.5 pr-3">€${e.payment_amount.toFixed(2)}</td>
+          <td class="py-1.5 pr-3">€${e.principal_component.toFixed(2)}</td>
+          <td class="py-1.5 pr-3">€${e.interest_component.toFixed(2)}</td>
+          <td class="py-1.5 pr-3">€${e.remaining_balance.toFixed(2)}</td>
+        </tr>`).join('');
+    } catch (err) {
+      showToast(err.message);
+    }
+  }
+
+  function renderPaymentHistory(payments) {
+    if (!payments || payments.length === 0) {
+      paymentHistoryList.innerHTML = `<p class="text-body-md text-outline-variant">Все още няма плащания</p>`;
+      return;
+    }
+    paymentHistoryList.innerHTML = payments.slice().reverse().map(p => `
+      <div class="flex items-center justify-between text-body-md text-on-surface-variant">
+        <span>${PAYMENT_TYPE_LABELS[p.payment_type] || p.payment_type}${p.installment_number ? ' №' + p.installment_number : ''}</span>
+        <span class="text-on-surface">€${p.amount.toFixed(2)}</span>
+        <span>${p.paid_at}</span>
+      </div>`).join('');
+  }
+
+  function renderPastLoans(pastLoans) {
+    if (pastLoans.length === 0) { pastLoansList.innerHTML = ''; return; }
+    pastLoansList.innerHTML = pastLoans.map(l => `
+      <div class="text-body-md text-on-surface-variant flex items-center justify-between">
+        <span>€${l.principal_amount.toFixed(2)} / ${l.term_months} мес. (${l.opened_at})</span>
+        <span>Общо платено: €${l.total_payable.toFixed(2)}</span>
+      </div>`).join('');
+  }
+
+  async function makePayment() {
+    const activeLoan = loans.find(l => l.status === 'active');
+    if (!activeLoan) return;
+    makePaymentBtn.disabled = true;
+    try {
+      const res = await fetch(`${API_BASE}/loans/${activeLoan.id}/pay`, {
+        method: 'POST', headers: authHeaders()
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.detail || 'Неуспешно плащане.');
+      showToast('Вноската е платена успешно');
+      await refreshLoansData();
+      await loadCurrentUser();
+    } catch (err) {
+      showToast(err.message);
+    } finally {
+      makePaymentBtn.disabled = false;
+    }
+  }
+
+  async function payoffLoan() {
+    const activeLoan = loans.find(l => l.status === 'active');
+    if (!activeLoan) return;
+    if (!confirm('Сигурни ли сте, че искате да погасите кредита предсрочно?')) return;
+    payoffBtn.disabled = true;
+    try {
+      const res = await fetch(`${API_BASE}/loans/${activeLoan.id}/payoff`, {
+        method: 'POST', headers: authHeaders()
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.detail || 'Неуспешно погасяване.');
+      showToast('Кредитът е погасен предсрочно');
+      await refreshLoansData();
+      await loadCurrentUser();
+    } catch (err) {
+      showToast(err.message);
+    } finally {
+      payoffBtn.disabled = false;
+    }
+  }
+
+  function populateApplyLoanOptions() {
+    applyPrincipal.innerHTML = LOAN_PRINCIPAL_CHOICES
+      .map(v => `<option value="${v}">€${v}</option>`).join('');
+    applyTerm.innerHTML = LOAN_TERM_CHOICES
+      .map(v => `<option value="${v}">${v} месеца</option>`).join('');
+  }
+
+  loansCloseBtn.addEventListener('click', closeLoansModal);
+  loansOverlay.addEventListener('click', e => { if (e.target === loansOverlay) closeLoansModal(); });
+  makePaymentBtn.addEventListener('click', makePayment);
+  payoffBtn.addEventListener('click', payoffLoan);
+
+  applyLoanForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    applyLoanError.classList.add('hidden');
+    applyLoanSubmitBtn.disabled = true;
+
+    const body = {
+      principal_amount: Number(applyPrincipal.value),
+      term_months: Number(applyTerm.value),
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/loans/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.detail || 'Неуспешно кандидатстване.');
+
+      showToast('Кандидатстването е успешно');
+      await refreshLoansData();
+      await loadCurrentUser();
+    } catch (err) {
+      applyLoanError.textContent = err.message;
+      applyLoanError.classList.remove('hidden');
+    } finally {
+      applyLoanSubmitBtn.disabled = false;
+    }
+  });
+
   // ── Send ───────────────────────────────────────────────────────────────
   async function sendMessage(text) {
     text = text.trim();
@@ -551,7 +1079,10 @@
     try {
       const res = await fetch(`${API_BASE}/chat`, {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {})
+        },
         body:    JSON.stringify({ question: text, history: payload, top_k: 4 })
       });
 
@@ -631,6 +1162,8 @@
 
   // Init
   renderSessions();
+  populateApplyLoanOptions();
+  loadCurrentUser();
   chatInput.focus();
 </script>
 </body>

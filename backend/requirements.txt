@@ -4,3 +4,7 @@ google-genai>=1.0.0
 pydantic>=2.7.0
 python-dotenv>=1.0.0
 scikit-learn>=1.4.0   # used only for cosine_similarity in TF-IDF store
+sqlalchemy>=2.0.0      # user accounts + loan data persistence (SQLite)
+bcrypt>=4.0.0          # password hashing
+pyjwt>=2.8.0           # auth access tokens
+email-validator>=2.1.0 # pydantic EmailStr validation
