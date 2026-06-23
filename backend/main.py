@@ -14,11 +14,13 @@ from __future__ import annotations
 import os
 import time
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import List, Optional
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session
 
@@ -266,9 +268,12 @@ app.add_middleware(
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 
+FRONTEND_FILE = Path(__file__).resolve().parent / "static" / "index.html"
+
+
 @app.get("/", include_in_schema=False)
 async def root():
-    return {"message": "LendRight RAG Chatbot API is running. See /docs for usage."}
+    return FileResponse(FRONTEND_FILE)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["Utility"])

@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+
+# Embedded Python/conda environment
+env/
+
+# Secrets
+backend/.env
+
+# Runtime database (auto-created on startup)
+backend/microcredit.db
